@@ -4,6 +4,7 @@ const {
   compareOrder,
   findOutOfOrderPairs,
 } = require("./lib/sorting");
+const { generateHtmlReport } = require("./lib/htmlReporter");
 
 const HN_URL = process.env.HN_URL || "https://news.ycombinator.com/newest";
 const ARTICLES_NEEDED = 100;
@@ -162,6 +163,9 @@ async function validateArticles(page, { url = HN_URL, pageDelayMs = PAGE_DELAY_M
   log(passed
     ? `✅ SUCCESS: All ${articles.length} articles are correctly sorted from newest to oldest\n`
     : "❌ FAILURE: Validation failed\n");
+
+  const reportPath = generateHtmlReport({ articles, sorted, mismatches, outOfOrderPairs, countOk, passed });
+  log(`\n📄 HTML report saved to ${reportPath}`);
 
   return { articles, sorted, mismatches, outOfOrderPairs, duplicatesSkipped, countOk, passed };
 }
