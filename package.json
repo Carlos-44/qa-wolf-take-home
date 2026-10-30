@@ -4,7 +4,8 @@
   "description": "QA Wolf take-home: Playwright script validating Hacker News article sort order",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node --test tests/sorting.test.js tests/collection.test.js",
+    "validate": "node index.js"
   },
   "author": "Carlos Ozoria",
   "license": "ISC",
