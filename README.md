@@ -21,7 +21,7 @@ npx playwright install chromium
 node index.js
 ```
 
-The browser is visible when run locally and headless in CI.
+The browser is visible when run locally and headless in CI. In CI, the script waits 30 seconds between pages to respect the `Crawl-delay` in Hacker News' robots.txt.
 
 ## Author
 Carlos Ozoria — [LinkedIn](https://www.linkedin.com/in/carlos-ozoria-0a292030b)

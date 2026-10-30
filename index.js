@@ -113,6 +113,8 @@ async function validateHackerNews() {
       if (timestamps.length < ARTICLES_NEEDED) {
         const moreLink = await page.$("a.morelink");
         if (moreLink) {
+          // Hacker News robots.txt sets Crawl-delay: 30, and it throttles cloud runners without it
+          if (process.env.CI) await page.waitForTimeout(30000);
           await moreLink.click();
           await page.waitForLoadState("domcontentloaded");
           currentPage++;

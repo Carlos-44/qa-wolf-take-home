@@ -34,7 +34,7 @@ jobs:
     name: 🧪 Run Script
     runs-on: ubuntu-latest
     needs: install
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -56,16 +56,14 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      # Hacker News intermittently returns an empty page to cloud runners, so retry
-      # with a delay. A pass still requires exactly 100 articles in sorted order.
+      # One retry for transient network or site errors. A pass still requires
+      # exactly 100 articles in sorted order.
       - name: Validate Hacker News sort order
         run: |
-          for attempt in 1 2 3; do
-            echo "Attempt $attempt of 3"
-            node index.js && exit 0
-            if [ "$attempt" -lt 3 ]; then sleep 60; fi
-          done
-          exit 1
+          node index.js && exit 0
+          echo "First attempt failed; retrying in 2 minutes"
+          sleep 120
+          node index.js
 
   status:
     name: ✅ Exit Code Check
