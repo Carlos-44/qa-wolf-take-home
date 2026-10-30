@@ -62,7 +62,7 @@ function validateSorting(timestamps) {
 async function validateHackerNews() {
   const browser = await chromium.launch({
     headless: !!process.env.CI, // headless in CI, visible locally
-    slowMo: process.env.CI ? 0 : 500,
+    slowMo: 500,
   });
 
   const context = await browser.newContext();
