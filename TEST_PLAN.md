@@ -59,3 +59,16 @@ A live run can only show the validator passing, because Hacker News is normally 
 ## Out of Scope
 - Comparing article IDs as a pass/fail check: IDs are printed only for information, because the assignment defines the order by time.
 - Verifying Hacker News' timestamps are correct: the script trusts the value in the page.
+
+## Results (October 30, 2026)
+| Group | Cases | Result |
+|---|---|---|
+| Unit | U1–U8 | 8 passed |
+| Mock site | M1–M5 | 5 passed |
+| End to end | E1–E2 | 2 passed |
+| Live, local | L1 | Passed on the second try: 100 articles, 0 positions differ, 0 violations, exit code 0 |
+| Live, CI | L2 | Passed: 100 articles from 4 pages, 0 positions differ, 0 violations |
+
+**Notes**
+- L1's first try timed out loading the page because Hacker News wasn't responding from that network. It passed once the site was reachable, with no code changes.
+- Neither live run had duplicates, so duplicate handling is proven only by the mock site (M3).
