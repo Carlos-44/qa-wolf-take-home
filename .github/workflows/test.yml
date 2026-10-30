@@ -1,16 +1,77 @@
 name: Run Tests
+
 on:
   push:
     branches: [main]
+
+permissions:
+  contents: read
+
 jobs:
-  test:
+  install:
+    name: 📦 Install Dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: node index.js
+
+      - name: Cache node_modules
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  run:
+    name: 🧪 Run Script
+    runs-on: ubuntu-latest
+    needs: install
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Restore node_modules
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies (cache miss)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate Hacker News sort order
+        run: node index.js
+
+  status:
+    name: ✅ Exit Code Check
+    runs-on: ubuntu-latest
+    needs: run
+    if: always()
+    steps:
+      - name: Check the script's result
+        env:
+          RUN_RESULT: ${{ needs.run.result }}
+        run: |
+          echo "Run stage result: $RUN_RESULT"
+          if [ "$RUN_RESULT" != "success" ]; then
+            echo "The script failed or did not run."
+            exit 1
+          fi
+          echo "The script exited with code 0."
