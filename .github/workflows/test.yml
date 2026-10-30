@@ -56,8 +56,16 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      # Hacker News intermittently returns an empty page to cloud runners, so retry
+      # with a delay. A pass still requires exactly 100 articles in sorted order.
       - name: Validate Hacker News sort order
-        run: node index.js
+        run: |
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt of 3"
+            node index.js && exit 0
+            if [ "$attempt" -lt 3 ]; then sleep 60; fi
+          done
+          exit 1
 
   status:
     name: ✅ Exit Code Check
